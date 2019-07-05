@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <script src="https://cdn.rawgit.com/BrainJS/brain.js/master/browser.min.js"></script>
+        <script src="math.js"></script>
+    </head>
+    <body>
+        <div id="content"></div>
+        <script>
+            randDigit = function(){ return Math.floor(Math.random()*10)}
+
+            let trainingData = []
+            let testData = []
+
+            for (let I = 0; I < 20; ++I) {
+                let d0 = randDigit()
+                let d1 = randDigit()
+
+                let ex0 = `${d0}+${d1}=${d0+d1}`
+
+                console.log(ex0)
+                trainingData.push(ex0)
+            }
+
+
+            const net = new brain.recurrent.LSTM({ hiddenLayer: [20], log:true })
+
+            net.fromJSON(JSON.parse(window.localStorage.getItem('model')))
+
+            net.train(trainingData, { errorThresh: 0.025 })
+
+            for (let I = 0; I < 3; ++I) {
+                let d0 = randDigit()
+                let d1 = randDigit()
+
+                let ex0 = `${d0}+${d1}`
+
+                console.log(`${ex0} ~> ${net.run(ex0)}`)
+            }
+
+            window.localStorage.setItem('model', JSON.stringify(net.toJSON()))
+        </script>
+    </body>
+</html>

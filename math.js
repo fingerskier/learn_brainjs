@@ -1,5 +1,5 @@
-const trainingData = [
-    '0+0=0',
+const origData = [
+        '0+0=0',
     '0+1=1',
     '0+2=2',
     '0+3=3',
@@ -40,15 +40,38 @@ const trainingData = [
     '5+3=8',
     '5+4=9',
     '5+5=10',
-];
+]
 
 
-const net = new brain.recurrent.LSTM({ hiddenLayer: [20] })
+randDigit = function(){ return Math.floor(Math.random()*10)}
+
+let trainingData = []
+let testData = []
+
+for (let I = 0; I < 100; ++I) {
+    let d0 = randDigit()
+    let d1 = randDigit()
+
+    let ex0 = `${d0}+${d1}=${d0+d1}`
+
+    // console.log(ex0)
+    trainingData.push(ex0)
+}
+
+
+const net = new brain.recurrent.LSTM({ hiddenLayer: [20], log:true })
+
+net.fromJSON(JSON.parse(window.localStorage.getItem('model')))
 
 net.train(trainingData, { errorThresh: 0.025 })
 
-console.log('0+1=' + net.run('0+1='))
-console.log('0+4=' + net.run('0+4='))
-console.log('4+1=' + net.run('4+1='))
-console.log('3+0=' + net.run('3+0='))
-console.log('6+0=' + net.run('6+0='))
+for (let I = 0; I < 3; ++I) {
+    let d0 = randDigit()
+    let d1 = randDigit()
+
+    let ex0 = `${d0}+${d1}`
+
+    console.log(`${ex0} ~> ${net.run(ex0)}`)
+}
+
+window.localStorage.setItem('model', JSON.stringify(net.toJSON()))
